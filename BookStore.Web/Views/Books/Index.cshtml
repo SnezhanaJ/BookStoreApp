@@ -1,0 +1,46 @@
+﻿@model List<BookStore.Domain.Domain.Books>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Index</h1>
+
+<div class="container">
+    <div class="m-3">
+        <a class="btn btn-success" asp-controller="Books" asp-action="Create">Add new product</a>
+
+    </div>
+
+    @for(int i=0;i<Model.Count; i++)
+    {
+        var item = Model[i];
+        if(i % 3 == 0)
+        {
+            @:<div class="row">
+        }
+        <div class="col-3 m-4">
+
+            <div class="card" style="width: 18rem; height: 35rem">
+                <img class="card-img-top" src="@item.BookImage" alt="Card image cap">
+                <div class="card-body">
+                    <h5 class="card-title">@item.Title</h5>
+                    <p class="card-text">@item.Author.FirstName @item.Author.LastName</p>
+                    <h6>Price: @item.Price</h6>
+                    <h5>Release Date: @item.ReleaseDate</h5>
+                </div>
+                <div class="card-footer">
+                    <a asp-controller="Books" asp-action="Edit" asp-route-id="@item.Id" class="btn btn-info">Edit</a>
+                    <a asp-controller="Books" asp-action="AddToCart" asp-route-id="@item.Id" class="btn btn-info">Add to Cart</a>
+                </div>
+
+            </div>
+        </div>
+
+        if(i % 3 == 2)
+        {
+            @:</div>
+        }
+    }
+</div>
