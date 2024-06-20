@@ -20,6 +20,10 @@ namespace BookStore.Repository.Implementation
         }
         public IEnumerable<T> GetAll()
         {
+            if(typeof(T) == typeof(Books))
+            {
+                return entities.Include("Publisher").Include("Author").AsEnumerable();
+            }
             return entities.AsEnumerable();
         }
 

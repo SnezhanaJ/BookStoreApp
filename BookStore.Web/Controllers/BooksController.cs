@@ -7,37 +7,38 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using BookStore.Repository;
 using BookStore.Domain.Domain;
+using BookStore.Service.Interface;
 
 namespace BookStore.Web.Controllers
 {
     public class BooksController : Controller
     {
-        private readonly Repository.ApplicationDbContext _context;
+        private readonly IBooksService _booksService;
+        private readonly IAuthorService _authorService;
+        private readonly IPublisherService _publisherService;
 
-        public BooksController(ApplicationDbContext context)
+        public BooksController(IBooksService booksService, IAuthorService authorService, IPublisherService publisherService)
         {
-            _context = context;
+            _booksService = booksService;
+            _authorService = authorService;
+            _publisherService = publisherService;
         }
 
         // GET: Books
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
-            var applicationDbContext = _context.Books.Include(b => b.Author).Include(b => b.Publisher);
-            return View(await applicationDbContext.ToListAsync());
+            return View(_booksService.GetAll());
         }
 
         // GET: Books/Details/5
-        public async Task<IActionResult> Details(Guid? id)
+        public IActionResult Details(Guid? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var books = await _context.Books
-                .Include(b => b.Author)
-                .Include(b => b.Publisher)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var books = _booksService.GetDetails(id);
             if (books == null)
             {
                 return NotFound();
@@ -50,14 +51,14 @@ namespace BookStore.Web.Controllers
         public IActionResult Create()
         {
             // Fetch the authors from the database
-            var authors = _context.Authors.Select(a => new {
+            var authors = _authorService.GetAll().Select(a => new {
                 Id = a.Id,
                 FullName = a.FirstName + " " + a.LastName  // Combine first and last names
             }).ToList();
 
             // Create a SelectList with FullName as the text and Id as the value
             ViewData["AuthorId"] = new SelectList(authors, "Id", "FullName");
-            ViewData["PublisherId"] = new SelectList(_context.Publishers, "Id", "Name");
+            ViewData["PublisherId"] = new SelectList(_publisherService.GetAll(), "Id", "Name");
             return View();
         }
 
@@ -66,41 +67,39 @@ namespace BookStore.Web.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Title,Price,ReleaseDate,PublisherId,AuthorId")] Books books)
+        public IActionResult Create([Bind("Id,Title,BookImage,Price,ReleaseDate,PublisherId,AuthorId")] Books books)
         {
             if (ModelState.IsValid)
             {
-                books.Id = Guid.NewGuid();
-                _context.Add(books);
-                await _context.SaveChangesAsync();
+                _booksService.CreateNewBook(books);
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["AuthorId"] = new SelectList(_context.Authors, "Id", "Id", books.AuthorId);
-            ViewData["PublisherId"] = new SelectList(_context.Publishers, "Id", "Name", books.PublisherId);
+            ViewData["AuthorId"] = new SelectList(_authorService.GetAll(), "Id", "Id", books.AuthorId);
+            ViewData["PublisherId"] = new SelectList(_publisherService.GetAll(), "Id", "Name", books.PublisherId);
             return View(books);
         }
 
         // GET: Books/Edit/5
-        public async Task<IActionResult> Edit(Guid? id)
+        public IActionResult Edit(Guid? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var books = await _context.Books.FindAsync(id);
+            var books = _booksService.GetDetails(id);
             if (books == null)
             {
                 return NotFound();
             }
-            var authors = _context.Authors.Select(a => new {
+            var authors = _authorService.GetAll().Select(a => new {
                 Id = a.Id,
                 FullName = a.FirstName + " " + a.LastName  // Combine first and last names
             }).ToList();
 
             // Create a SelectList with FullName as the text and Id as the value
             ViewData["AuthorId"] = new SelectList(authors, "Id", "FullName");
-            ViewData["PublisherId"] = new SelectList(_context.Publishers, "Id", "Name", books.PublisherId);
+            ViewData["PublisherId"] = new SelectList(_publisherService.GetAll(), "Id", "Name", books.PublisherId);
             return View(books);
         }
 
@@ -109,7 +108,7 @@ namespace BookStore.Web.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, [Bind("Id,Title,BookImage,Price,ReleaseDate,PublisherId,AuthorId")] Books books)
+        public IActionResult Edit(Guid id, [Bind("Id,Title,BookImage,Price,ReleaseDate,PublisherId,AuthorId")] Books books)
         {
             if (id != books.Id)
             {
@@ -120,8 +119,7 @@ namespace BookStore.Web.Controllers
             {
                 try
                 {
-                    _context.Update(books);
-                    await _context.SaveChangesAsync();
+                    _booksService.UpdateExistingBook(books);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -136,24 +134,21 @@ namespace BookStore.Web.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["AuthorId"] = new SelectList(_context.Authors, "Id", "Id", books.AuthorId);
+            ViewData["AuthorId"] = new SelectList(_authorService.GetAll(), "Id", "Id", books.AuthorId);
 
-            ViewData["PublisherId"] = new SelectList(_context.Publishers, "Id", "Name", books.PublisherId);
+            ViewData["PublisherId"] = new SelectList(_publisherService.GetAll(), "Id", "Name", books.PublisherId);
             return View(books);
         }
 
         // GET: Books/Delete/5
-        public async Task<IActionResult> Delete(Guid? id)
+        public IActionResult Delete(Guid? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var books = await _context.Books
-                .Include(b => b.Author)
-                .Include(b => b.Publisher)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var books = _booksService.GetAll();
             if (books == null)
             {
                 return NotFound();
@@ -165,21 +160,16 @@ namespace BookStore.Web.Controllers
         // POST: Books/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(Guid id)
+        public IActionResult DeleteConfirmed(Guid id)
         {
-            var books = await _context.Books.FindAsync(id);
-            if (books != null)
-            {
-                _context.Books.Remove(books);
-            }
-
-            await _context.SaveChangesAsync();
+            _booksService.DeleteBook(id);
             return RedirectToAction(nameof(Index));
         }
 
         private bool BooksExists(Guid id)
         {
-            return _context.Books.Any(e => e.Id == id);
+            var book = _booksService.GetDetails(id);
+            return book != null;
         }
     }
 }

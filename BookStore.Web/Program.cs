@@ -23,7 +23,10 @@ internal class Program
         builder.Services.AddControllersWithViews();
 
         builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+
         builder.Services.AddTransient<IPublisherService, PublisherService>();
+        builder.Services.AddTransient<IAuthorService, AuthorService>();
+        builder.Services.AddTransient<IBooksService, BooksService>();
 
         var app = builder.Build();
 
