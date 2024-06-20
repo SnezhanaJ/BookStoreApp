@@ -33,6 +33,10 @@ namespace BookStore.Repository.Implementation
             {
                 return entities.Include("Publisher").Include("Author").SingleOrDefault(s => s.Id == id);
             }
+            if (typeof(T) == typeof(BooksInShoppingCart))
+            {
+                return entities.Include("Book").SingleOrDefault(s => s.Id == id);
+            }
 
             return entities.SingleOrDefault(s => s.Id == id);
         }

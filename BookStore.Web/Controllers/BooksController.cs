@@ -8,6 +8,9 @@ using Microsoft.EntityFrameworkCore;
 using BookStore.Repository;
 using BookStore.Domain.Domain;
 using BookStore.Service.Interface;
+using BookStore.Service.Implementation;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 
 namespace BookStore.Web.Controllers
 {
@@ -16,12 +19,14 @@ namespace BookStore.Web.Controllers
         private readonly IBooksService _booksService;
         private readonly IAuthorService _authorService;
         private readonly IPublisherService _publisherService;
+        private readonly IShoppingCartService _shoppingCartService;
 
-        public BooksController(IBooksService booksService, IAuthorService authorService, IPublisherService publisherService)
+        public BooksController(IBooksService booksService, IAuthorService authorService, IPublisherService publisherService, IShoppingCartService shoppingCartService)
         {
             _booksService = booksService;
             _authorService = authorService;
             _publisherService = publisherService;
+            _shoppingCartService = shoppingCartService;
         }
 
         // GET: Books
@@ -170,6 +175,35 @@ namespace BookStore.Web.Controllers
         {
             var book = _booksService.GetDetails(id);
             return book != null;
+        }
+
+        public IActionResult AddToCart(Guid? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var product = _booksService.GetDetails(id);
+
+            BooksInShoppingCart ps = new BooksInShoppingCart();
+
+            if (product != null)
+            {
+                ps.BookId = product.Id;
+                ps.Book = product;
+            }
+
+            return View(ps);
+        }
+
+        [HttpPost]
+        public IActionResult AddToCartConfirmed(BooksInShoppingCart model)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            _shoppingCartService.AddToShoppingConfirmed(model, userId);
+
+            return View("Index", _booksService.GetAll());
         }
     }
 }

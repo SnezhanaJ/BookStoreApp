@@ -5,7 +5,6 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Index</h1>
 
 <div class="container">
     <div class="m-3">
@@ -22,15 +21,15 @@
         }
         <div class="col-3 m-4">
 
-            <div class="card" style="width: 18rem; height: 35rem">
-                <img class="card-img-top" src="@item.BookImage" alt="Card image cap">
-                <div class="card-body">
+            <div class="card" style="width: 18rem; height: 35rem; overflow: hidden;">
+                <img class="card-img-top" src="@item.BookImage" alt="Card image cap" style="height: 350px; object-fit: cover;">
+                <div class="card-body" style="height: 200px; overflow-y: auto;">
                     <h5 class="card-title">@item.Title</h5>
                     <p class="card-text">@item.Author.FirstName @item.Author.LastName</p>
                     <h6>Price: @item.Price</h6>
-                    <h5>Release Date: @item.ReleaseDate</h5>
+                    <h6>Release Date: @item.ReleaseDate</h6>
                 </div>
-                <div class="card-footer">
+                <div class="card-footer" style="position: absolute; bottom: 0; width: 100%;">
                     <a asp-controller="Books" asp-action="Edit" asp-route-id="@item.Id" class="btn btn-info">Edit</a>
                     <a asp-controller="Books" asp-action="AddToCart" asp-route-id="@item.Id" class="btn btn-info">Add to Cart</a>
                 </div>
