@@ -51,6 +51,10 @@ namespace BookStore.Repository.Implementation
         public void Update(BookStoreUsers entity)
         {
 
+            if (entity == null)
+            {
+                throw new ArgumentNullException("entity");
+            }
             entities.Update(entity);
             context.SaveChanges();
         }

@@ -4,6 +4,7 @@ using BookStore.Repository;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BookStore.Repository.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240626180808_orderStripeEmail")]
+    partial class orderStripeEmail
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -39,30 +42,6 @@ namespace BookStore.Repository.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Authors");
-                });
-
-            modelBuilder.Entity("BookStore.Domain.Domain.BookInOrder", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("BookId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("OrderId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BookId");
-
-                    b.HasIndex("OrderId");
-
-                    b.ToTable("BookInOrder");
                 });
 
             modelBuilder.Entity("BookStore.Domain.Domain.Books", b =>
@@ -120,23 +99,6 @@ namespace BookStore.Repository.Migrations
                     b.HasIndex("ShoppingCartId");
 
                     b.ToTable("BooksInShoppingCarts");
-                });
-
-            modelBuilder.Entity("BookStore.Domain.Domain.Order", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("userId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("userId");
-
-                    b.ToTable("Order");
                 });
 
             modelBuilder.Entity("BookStore.Domain.Domain.Publisher", b =>
@@ -406,25 +368,6 @@ namespace BookStore.Repository.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("BookStore.Domain.Domain.BookInOrder", b =>
-                {
-                    b.HasOne("BookStore.Domain.Domain.Books", "Book")
-                        .WithMany()
-                        .HasForeignKey("BookId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("BookStore.Domain.Domain.Order", "Order")
-                        .WithMany("bookInOrders")
-                        .HasForeignKey("OrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Book");
-
-                    b.Navigation("Order");
-                });
-
             modelBuilder.Entity("BookStore.Domain.Domain.Books", b =>
                 {
                     b.HasOne("BookStore.Domain.Domain.Author", "Author")
@@ -461,17 +404,6 @@ namespace BookStore.Repository.Migrations
                     b.Navigation("Book");
 
                     b.Navigation("ShoppingCart");
-                });
-
-            modelBuilder.Entity("BookStore.Domain.Domain.Order", b =>
-                {
-                    b.HasOne("BookStore.Domain.Identity.BookStoreUsers", "User")
-                        .WithMany()
-                        .HasForeignKey("userId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("BookStore.Domain.Domain.ShoppingCart", b =>
@@ -544,11 +476,6 @@ namespace BookStore.Repository.Migrations
                     b.Navigation("BooksInShoppingCarts");
                 });
 
-            modelBuilder.Entity("BookStore.Domain.Domain.Order", b =>
-                {
-                    b.Navigation("bookInOrders");
-                });
-
             modelBuilder.Entity("BookStore.Domain.Domain.Publisher", b =>
                 {
                     b.Navigation("Books");
@@ -561,7 +488,8 @@ namespace BookStore.Repository.Migrations
 
             modelBuilder.Entity("BookStore.Domain.Identity.BookStoreUsers", b =>
                 {
-                    b.Navigation("ShoppingCart");
+                    b.Navigation("ShoppingCart")
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

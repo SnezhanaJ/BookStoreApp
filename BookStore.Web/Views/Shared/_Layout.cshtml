@@ -7,10 +7,102 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/BookStore.Web.styles.css" asp-append-version="true" />
+    <style>
+        body {
+            background-color: #fcf8f3; /* second-color */
+            color: #333;
+            font-family: Arial, sans-serif;
+        }
+
+        .navbar {
+            background-color: #698474; /* fourth-color */
+        }
+
+        .navbar-brand, .nav-link {
+            color: white !important;
+        }
+
+            .nav-link:hover {
+                color: #ffaaa5 !important; /* first-color */
+            }
+
+        .footer {
+            background-color: #698474; /* fourth-color */
+            color: white;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding-top: 20px;
+        }
+
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            margin: 0 -15px;
+        }
+
+        .col-3 {
+            flex: 0 0 25%;
+            max-width: 25%;
+            padding: 0 15px;
+        }
+
+        .card {
+            margin-bottom: 30px;
+            transition: transform 0.3s ease-in-out;
+            background-color: #fcf8f3; /* second-color */
+            border: none;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+            .card:hover {
+                transform: scale(1.05);
+            }
+
+        .card-img-top {
+            height: 350px;
+            object-fit: cover;
+        }
+
+        .card-body {
+            height: 200px;
+            overflow-y: auto;
+            background-color: #ffd3b6; /* third-color */
+        }
+
+        .card-footer {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background-color: #698474; /* fourth-color */
+            text-align: center;
+        }
+
+        .btn {
+            margin: 5px;
+            color: white;
+        }
+
+        .btn-info {
+            background-color: #ffaaa5; /* first-color */
+            border: none;
+        }
+
+        .btn-success {
+            background-color: #698474; /* fourth-color */
+            border: none;
+        }
+
+        .m-3 a {
+            color: white;
+        }
+    </style>
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light border-bottom box-shadow mb-3">
             <div class="container-fluid">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">BookStore.Web</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
@@ -47,9 +139,6 @@
     </div>
 
     <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2024 - BookStore.Web - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>

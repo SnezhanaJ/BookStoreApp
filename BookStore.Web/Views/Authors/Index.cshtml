@@ -5,10 +5,96 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+<style>
+    body {
+        background-color: #fcf8f3; /* second-color */
+        color: #333;
+        font-family: Arial, sans-serif;
+    }
+
+    .navbar {
+        background-color: #698474; /* fourth-color */
+    }
+
+    .navbar-brand, .nav-link {
+        color: white !important;
+    }
+
+        .nav-link:hover {
+            color: #ffaaa5 !important; /* first-color */
+        }
+
+    .footer {
+        background-color: #698474; /* fourth-color */
+        color: white;
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding-top: 20px;
+    }
+
+    .btn-info {
+        background-color: #ffaaa5; /* first-color */
+        border: none;
+        color: white;
+    }
+
+    .btn-success {
+        background-color: #698474; /* fourth-color */
+        border: none;
+        color: white;
+    }
+
+    .table {
+        background-color: #ffd3b6; /* third-color */
+        border: 1px solid #ccc;
+        width: 100%;
+        margin-bottom: 20px;
+    }
+
+        .table th {
+            background-color: #698474; /* fourth-color */
+            color: white;
+            padding: 10px;
+            text-align: left;
+        }
+
+        .table td {
+            padding: 10px;
+        }
+
+        .table a {
+            color: #698474; /* fourth-color */
+        }
+
+            .table a:hover {
+                color: #ffaaa5; /* first-color */
+            }
+
+    h1 {
+        color: #698474; /* fourth-color */
+    }
+
+    p a {
+        color: white;
+        background-color: #698474; /* fourth-color */
+        padding: 10px 15px;
+        text-decoration: none;
+        border-radius: 5px;
+    }
+
+        p a:hover {
+            background-color: #ffaaa5; /* first-color */
+        }
+</style>
+
+
 <h1>Index</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create" class="btn btn-success">Create New</a>
 </p>
 <table class="table">
     <thead>
@@ -23,20 +109,21 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.FirstName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.LastName)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.FirstName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.LastName)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-info">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-info">Delete</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>

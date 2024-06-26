@@ -1,3 +1,4 @@
+using BookStore.Domain;
 using BookStore.Domain.Identity;
 using BookStore.Repository;
 using BookStore.Repository.Implementation;
@@ -8,9 +9,12 @@ using Microsoft.EntityFrameworkCore;
 
 internal class Program
 {
-    private static void Main(string[] args)
+    private static void Main(string[] args) 
     {
         var builder = WebApplication.CreateBuilder(args);
+        builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("StripeSettings"));
+        builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("EmailSettings"));
+
 
         // Add services to the container.
         var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
@@ -31,6 +35,8 @@ internal class Program
         builder.Services.AddTransient<IAuthorService, AuthorService>();
         builder.Services.AddTransient<IBooksService, BooksService>();
         builder.Services.AddTransient<IShoppingCartService, ShoppingCartService>();
+        builder.Services.AddTransient<IEmailService, EmailService>();
+        builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
 
 
         var app = builder.Build();

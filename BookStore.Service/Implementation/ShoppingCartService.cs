@@ -1,4 +1,5 @@
-﻿using BookStore.Domain.Domain;
+﻿using BookStore.Domain;
+using BookStore.Domain.Domain;
 using BookStore.Domain.DTO;
 using BookStore.Repository.Interface;
 using BookStore.Service.Interface;
@@ -15,11 +16,17 @@ namespace BookStore.Service.Implementation
         private readonly IRepository<ShoppingCart> _cartRepository;
         private readonly IRepository<Books> _booksRepository;
         private readonly IUserRepository _userRepository;
-        public ShoppingCartService(IRepository<ShoppingCart> cartRepository, IRepository<Books> booksRepository, IUserRepository userRepository)
+        private readonly IRepository<Order> _orderRepository;
+        private readonly IRepository<BooksInShoppingCart> _bookInShoppingCartRepository;
+        private readonly IRepository<BookInOrder> _bookInOrderRepository;
+        private readonly IEmailService _emailService;
+        public ShoppingCartService(IRepository<ShoppingCart> cartRepository, IRepository<Books> booksRepository, IUserRepository userRepository, IRepository<BookInOrder> bookInOrderRepository, IEmailService emailService)
         {
             _cartRepository = cartRepository;
             _booksRepository = booksRepository;
             _userRepository = userRepository;
+            _bookInOrderRepository = bookInOrderRepository;
+            _emailService = emailService;
         }
 
         public bool AddToShoppingConfirmed(BooksInShoppingCart model, string userId)
@@ -73,7 +80,94 @@ namespace BookStore.Service.Implementation
 
         public bool order(string userId)
         {
-            throw new NotImplementedException();
+            if (userId == null)
+            {
+                Console.WriteLine("userId is null");
+                return false;
+            }
+
+            var loggedInUser = _userRepository.Get(userId);
+            if (loggedInUser == null)
+            {
+                Console.WriteLine("loggedInUser is null");
+                return false;
+            }
+
+            var userShoppingCart = loggedInUser?.ShoppingCart;
+            if (userShoppingCart == null)
+            {
+                Console.WriteLine("userShoppingCart is null");
+                return false;
+            }
+
+            if (userShoppingCart.BooksInShoppingCarts == null)
+            {
+                Console.WriteLine("BooksInShoppingCarts is null");
+                return false;
+            }
+
+            EmailMessage message = new EmailMessage();
+            message.Subject = "Successful order";
+            message.MailTo = loggedInUser.Email;
+
+            Order order = new Order
+            {
+                Id = Guid.NewGuid(),
+                userId = userId,
+                User = loggedInUser
+            };
+
+            List<BookInOrder> booksInOrder = new List<BookInOrder>();
+
+            var rez = userShoppingCart.BooksInShoppingCarts.Select(
+                z => new BookInOrder
+                {
+                    Id = Guid.NewGuid(),
+                    BookId = z.Book.Id,
+                    Book = z.Book,
+                    OrderId = order.Id,
+                    Order = order,
+                    Quantity = z.Quantity
+                }).ToList();
+
+            StringBuilder sb = new StringBuilder();
+
+            var totalPrice = 0.0;
+
+            sb.AppendLine("Your order is completed. The order contains: ");
+
+            for (int i = 1; i <= rez.Count; i++)
+            {
+                var currentItem = rez[i - 1];
+                totalPrice += currentItem.Quantity * currentItem.Book.Price;
+                sb.AppendLine(i.ToString() + ". " + currentItem.Book.Title + " with quantity of: " + currentItem.Quantity + " and price of: $" + currentItem.Book.Price);
+            }
+
+            sb.AppendLine("Total price for your order: " + totalPrice.ToString());
+            message.Content = sb.ToString();
+
+            booksInOrder.AddRange(rez);
+
+            if (_bookInOrderRepository == null)
+            {
+                Console.WriteLine("_bookInOrderRepository is null");
+                return false;
+            }
+
+            foreach (var product in booksInOrder)
+            {
+                _bookInOrderRepository.Insert(product);
+            }
+
+            loggedInUser.ShoppingCart.BooksInShoppingCarts.Clear();
+            _userRepository.Update(loggedInUser);
+            //_cartRepository.Update(userShoppingCart); 
+            this._emailService.SendEmailAsync(message);
+
+            return true;
         }
+
+
     }
 }
+

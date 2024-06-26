@@ -1,16 +1,118 @@
 ﻿@using BookStore.Domain
 @using Microsoft.Extensions.Options
 @model BookStore.Domain.DTO.ShoppingCartDto
+@inject IOptions<StripeSettings> Stripe
 
 @{
     ViewData["Title"] = "Index";
 }
 
 
+<style>
+    body {
+        background-color: #fcf8f3; /* second-color */
+        color: #333;
+        font-family: Arial, sans-serif;
+    }
+
+    .navbar {
+        background-color: #698474; /* fourth-color */
+    }
+
+    .navbar-brand, .nav-link {
+        color: white !important;
+    }
+
+        .nav-link:hover {
+            color: #ffaaa5 !important; /* first-color */
+        }
+
+    .footer {
+        background-color: #698474; /* fourth-color */
+        color: white;
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding-top: 20px;
+    }
+
+    .btn-info {
+        background-color: #ffaaa5; /* first-color */
+        border: none;
+        color: white;
+    }
+
+    .btn-success {
+        background-color: #698474; /* fourth-color */
+        border: none;
+        color: white;
+    }
+
+    .table {
+        background-color: #ffd3b6; /* third-color */
+        border: 1px solid #ccc;
+        width: 100%;
+        margin-bottom: 20px;
+    }
+
+        .table th {
+            background-color: #698474; /* fourth-color */
+            color: white;
+            padding: 10px;
+            text-align: left;
+        }
+
+        .table td {
+            padding: 10px;
+        }
+
+        .table a {
+            color: #698474; /* fourth-color */
+        }
+
+            .table a:hover {
+                color: #ffaaa5; /* first-color */
+            }
+
+    h1 {
+        color: #698474; /* fourth-color */
+    }
+
+    p a {
+        color: white;
+        background-color: #698474; /* fourth-color */
+        padding: 10px 15px;
+        text-decoration: none;
+        border-radius: 5px;
+    }
+
+        p a:hover {
+            background-color: #ffaaa5; /* first-color */
+        }
+
+    form {
+        margin-bottom: 20px;
+    }
+</style>
+
+
+<h1>Shopping Cart</h1>
+
 @if (Model.TotalPrice != 0)
 {
     <form asp-controller="ShoppingCarts" asp-action="PayOrder" method="post">
-        <!-- Add form elements here if needed -->
+        <article>
+            <script src="https://checkout.stripe.com/checkout.js"
+                    class="stripe-button"
+                    data-key="@Stripe.Value.PublishableKey"
+                    data-locale="auto"
+                    data-description="Book Store Payment"
+                    data-amount="@(Model.TotalPrice * 100)"
+                    data-label="Pay $@Model.TotalPrice">
+            </script>
+        </article>
     </form>
 }
 
@@ -19,18 +121,10 @@
     <table class="table">
         <thead>
             <tr>
-                <th>
-                    #
-                </th>
-                <th>
-                    Book title
-                </th>
-                <th>
-                    Price
-                </th>
-                <th>
-                    Quantity
-                </th>
+                <th>#</th>
+                <th>Book Title</th>
+                <th>Price</th>
+                <th>Quantity</th>
                 <th></th>
             </tr>
         </thead>
@@ -40,18 +134,11 @@
                 var item = Model.Books[i];
                 <tr>
                     <td>@(i + 1)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Book.Title)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Book.Price)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Quantity)</td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.Book.Title)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Book.Price)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Quantity)
-                    </td>
-                    <td>
-                        |
-                        <a asp-action="DeleteFromShoppingCart" asp-controller="ShoppingCarts" asp-route-id="@item.Book.Id">Delete</a>
+                        <a asp-action="DeleteFromShoppingCart" asp-controller="ShoppingCarts" asp-route-id="@item.Book.Id" class="btn btn-info">Delete</a>
                     </td>
                 </tr>
             }
