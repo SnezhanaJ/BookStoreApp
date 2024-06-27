@@ -14,5 +14,6 @@ namespace BookStore.Repository.Interface
         void Insert(T entity);
         void Update(T entity);
         void Delete(T entity);
+        T GetDetailsWithBaseEntity(BaseEntity id);
     }
 }

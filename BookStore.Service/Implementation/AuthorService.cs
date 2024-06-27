@@ -38,6 +38,24 @@ namespace BookStore.Service.Implementation
             return _repository.Get(id);
         }
 
+        public Author GetDetailsWithBaseEntity(BaseEntity id)
+        {
+            return _repository.GetDetailsWithBaseEntity(id);
+        }
+
+        public bool UpdateAuthor(Author p)
+        {
+            try
+            {
+                _repository.Update(p);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
         public void UpdateExistingAuthor(Author p)
         {
             _repository.Update(p);

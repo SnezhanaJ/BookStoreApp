@@ -69,5 +69,23 @@ namespace BookStore.Repository.Implementation
             entities.Remove(entity);
             context.SaveChanges();
         }
+
+        public T GetDetailsWithBaseEntity(BaseEntity id)
+        {
+
+            if (typeof(T) == typeof(Books))
+            {
+                return entities.Include("Publisher").Include("Author")
+                .SingleOrDefaultAsync(z => z.Id == id.Id).Result;
+            }
+            if (typeof(T) == typeof(BooksInShoppingCart))
+            {
+                return entities.Include("Book")
+                .SingleOrDefaultAsync(z => z.Id == id.Id).Result;
+            }
+
+            return entities
+                .SingleOrDefaultAsync(z => z.Id == id.Id).Result;
+        }
     }
 }
